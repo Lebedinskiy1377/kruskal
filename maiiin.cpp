@@ -23,7 +23,7 @@ bool has_loop(Graph*& g, int v);
 bool has_loop(Graph*& g, int v, vector<bool>& isVisited, int p = -1);
 
 Graph* makeGraph();
-set<pair<int, int>> kruskal(Graph* g);
+set<pair<int, int>> kruskal(Graph* g, int& weight);
 
 int main(int argc, const char * argv[]) {
     Graph* matrix = new AdjancentMatrixGraph(8);
@@ -45,10 +45,11 @@ int main(int argc, const char * argv[]) {
     for (auto& it : vec)
         std::cout << it.a << ' ' << it.b << ' ' << it.weight << '\n';*/
     vector<bool> used;
-    auto ost_tree = kruskal(makeGraph());
+    int weight;
+    auto ost_tree = kruskal(makeGraph(), weight);
     for (auto& edge : ost_tree)
         std::cout << edge.first << ' ' << edge.second << '\n';
-    
+    std::cout << "weight: " << weight;
     //std::cout << has_loop(matrix, 0);
     //DFS_rec(matrix, 0);
     //std::cout << "\n";
@@ -221,15 +222,16 @@ Graph* makeGraph(){
     return g;
 }
 
-set<pair<int, int>> kruskal(Graph* g) {
+set<pair<int, int>> kruskal(Graph* g, int& weight) {
+    weight = 0;
     set<pair<int, int>> T;
     DisjointSetSystem dss(g->getSize());
     auto edges = g->getEdges();
     sort_bubble(edges);
     for (int i = 0; i < g->getSize(); ++i) {
-        if (dss.getRoot(edges[i].a) != dss.getRoot(edges[i].b)) {
+        if (dss.merge(edges[i].a, edges[i].b)) {
+            weight += edges[i].weight;
             T.insert(make_pair(edges[i].a, edges[i].b));
-            dss.merge(edges[i].a, edges[i].b);
         }
     }
     return T;
